@@ -51,9 +51,7 @@ func ReadDir(dirname string) ([]fs.DirEntry, error) {
 	}
 	dirs := make([]fs.DirEntry, 0, len(fileInfos))
 	for _, fi := range fileInfos {
-		// TODO
-		// dirs = append(dirs, fs.FileInfoToDirEntry(fi))
-		_ = fi
+		dirs = append(dirs, ToDirEntry(fi))
 	}
 	return dirs, nil
 }
@@ -156,4 +154,32 @@ func (fw *fileWrap) Stat() (fs.FileInfo, error) {
 
 func ToFsFile(f *os.File) fs.File {
 	return &fileWrap{f}
+}
+
+type dirEntryWrap struct {
+	info os.FileInfo
+}
+
+// Info implements fs.DirEntry
+func (dew *dirEntryWrap) Info() (fs.FileInfo, error) {
+	return ToFsFileInfo(dew.info), nil
+}
+
+// IsDir implements fs.DirEntry
+func (dew *dirEntryWrap) IsDir() bool {
+	return dew.info.IsDir()
+}
+
+// Name implements fs.DirEntry
+func (dew *dirEntryWrap) Name() string {
+	return dew.info.Name()
+}
+
+// Type implements fs.DirEntry
+func (dew *dirEntryWrap) Type() fs.FileMode {
+	return fs.FileMode(dew.info.Mode()).Type()
+}
+
+func ToDirEntry(fi os.FileInfo) fs.DirEntry {
+	return &dirEntryWrap{fi}
 }

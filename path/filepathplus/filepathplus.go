@@ -56,9 +56,7 @@ func WalkDir(root string, fn fs.WalkDirFunc) error {
 	if err != nil {
 		err = fn(root, nil, err)
 	} else {
-		_ = info
-		// TODO
-		// err = walkDir(root, fs.FileInfoToDirEntry(info), fn)
+		err = walkDir(root, osplus.ToDirEntry(info), fn)
 	}
 	if err == fs.SkipDir {
 		return nil
