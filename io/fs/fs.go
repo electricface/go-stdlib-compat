@@ -74,10 +74,10 @@ func ValidPath(name string) bool {
 
 // A File provides access to a single file.
 // The File interface is the minimum implementation required of the file.
-// A file may implement additional interfaces, such as
-// ReadDirFile, ReaderAt, or Seeker, to provide additional or optimized functionality.
+// Directory files should also implement ReadDirFile.
+// A file may implement io.ReaderAt or io.Seeker as optimizations.
 type File interface {
-	Stat() (os.FileInfo, error)
+	Stat() (FileInfo, error)
 	Read([]byte) (int, error)
 	Close() error
 }
@@ -87,7 +87,7 @@ type File interface {
 type DirEntry interface {
 	// Name returns the name of the file (or subdirectory) described by the entry.
 	// This name is only the final element of the path (the base name), not the entire path.
-	// For example, Name would return "hello.go" not "/home/gopher/hello.go".
+	// For example, Name would return "hello.go" not "home/gopher/hello.go".
 	Name() string
 
 	// IsDir reports whether the entry describes a directory.
@@ -95,7 +95,7 @@ type DirEntry interface {
 
 	// Type returns the type bits for the entry.
 	// The type bits are a subset of the usual FileMode bits, those returned by the FileMode.Type method.
-	Type() os.FileMode
+	Type() FileMode
 
 	// Info returns the FileInfo for the file or subdirectory described by the entry.
 	// The returned FileInfo may be from the time of the original directory read
@@ -103,7 +103,7 @@ type DirEntry interface {
 	// since the directory read, Info may return an error satisfying errors.Is(err, ErrNotExist).
 	// If the entry denotes a symbolic link, Info reports the information about the link itself,
 	// not the link's target.
-	Info() (os.FileInfo, error)
+	Info() (FileInfo, error)
 }
 
 // A ReadDirFile is a directory file whose entries can be read with the ReadDir method.
@@ -157,7 +157,7 @@ func errClosed() error     { return os.ErrClosed }
 type FileInfo interface {
 	Name() string       // base name of the file
 	Size() int64        // length in bytes for regular files; system-dependent for others
-	Mode() os.FileMode  // file mode bits
+	Mode() FileMode     // file mode bits
 	ModTime() time.Time // modification time
 	IsDir() bool        // abbreviation for Mode().IsDir()
 	Sys() interface{}   // underlying data source (can return nil)
@@ -168,7 +168,7 @@ type FileInfo interface {
 // information about files can be moved from one system
 // to another portably. Not all bits apply to all systems.
 // The only required bit is ModeDir for directories.
-type FileMode os.FileMode
+type FileMode uint32
 
 // The defined file mode bits are the most significant bits of the FileMode.
 // The nine least-significant bits are the standard Unix rwxrwxrwx permissions.

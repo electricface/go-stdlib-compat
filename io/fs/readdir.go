@@ -6,7 +6,6 @@ package fs
 
 import (
 	"errors"
-	"os"
 	"sort"
 )
 
@@ -56,11 +55,11 @@ func (di dirInfo) IsDir() bool {
 	return di.fileInfo.IsDir()
 }
 
-func (di dirInfo) Type() os.FileMode {
-	return os.FileMode(FileMode(di.fileInfo.Mode()).Type())
+func (di dirInfo) Type() FileMode {
+	return di.fileInfo.Mode().Type()
 }
 
-func (di dirInfo) Info() (os.FileInfo, error) {
+func (di dirInfo) Info() (FileInfo, error) {
 	return di.fileInfo, nil
 }
 
