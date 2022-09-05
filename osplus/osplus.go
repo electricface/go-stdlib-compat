@@ -133,22 +133,12 @@ func ToOsFileInfo(fi fs.FileInfo) os.FileInfo {
 }
 
 type fileWrap struct {
-	f *os.File
-}
-
-// Close implements fs.File
-func (fw *fileWrap) Close() error {
-	return fw.f.Close()
-}
-
-// Read implements fs.File
-func (fw *fileWrap) Read(b []byte) (int, error) {
-	return fw.Read(b)
+	*os.File
 }
 
 // Stat implements fs.File
 func (fw *fileWrap) Stat() (fs.FileInfo, error) {
-	fi, err := fw.f.Stat()
+	fi, err := fw.File.Stat()
 	return ToFsFileInfo(fi), err
 }
 
